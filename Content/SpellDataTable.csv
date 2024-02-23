@@ -1,0 +1,6 @@
+---,Form,bInitial,OnCollide,OnTimer,OnDeath,OnDamageDeal,OnDamageRecieve
+0,"Projectile","True","1","0","0","0","0"
+1,"Projectile","False","0","0","0","0","0"
+2,"Projectile","False","0","0","0","0","0"
+3,"Projectile","False","0","0","0","0","0"
+4,"Projectile","False","0","0","0","0","0"
