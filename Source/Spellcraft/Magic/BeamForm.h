@@ -6,6 +6,8 @@
 #include "BaseForm.h"
 #include "BeamForm.generated.h"
 
+class UNiagaraComponent;
+class UParticleSystem;
 /**
  * 
  */
@@ -19,10 +21,10 @@ public:
 	ABeamForm();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Beam)
-	class UNiagaraComponent* BeamEffect;
+	TObjectPtr<UNiagaraComponent> BeamEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Beam)
-	class UParticleSystem* ImpactEffect;
+	TObjectPtr<UParticleSystem> ImpactEffect;
 	
 protected:
 	// Called when the game starts or when spawned

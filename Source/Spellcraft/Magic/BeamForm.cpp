@@ -2,7 +2,10 @@
 
 
 #include "BeamForm.h"
+#include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
+#include "TargetAroundEffect.h"
+#include "Spellcraft/SpellcraftState.h"
 #include "Components/StaticMeshComponent.h"
 
 ABeamForm::ABeamForm()
@@ -22,22 +25,42 @@ void ABeamForm::BeginPlay()
 	FCollisionQueryParams CollisionQueryParams;
 	CollisionQueryParams.AddIgnoredActor(this);
 	CollisionQueryParams.AddIgnoredActor(ActorToIgnore);
-	//DrawDebugLine(GetWorld(), GetActorLocation(), TraceEnd, FColor::Cyan, false, 10.0f);
+
+	if (BeamEffect->GetFXSystemAsset() == nullptr)
+	{
+		UNiagaraSystem* NiagaraSystemDefault = Cast<UNiagaraSystem>(StaticLoadObject(UNiagaraSystem::StaticClass(), NULL, TEXT("/Script/Niagara.NiagaraSystem'/Game/Blueprints/Magic/Particle/NS_Laser.NS_Laser'")));
+		if (NiagaraSystemDefault != nullptr)
+		{
+			BeamEffect->SetAsset(NiagaraSystemDefault);
+		}
+	}
+
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), TraceEnd, ECollisionChannel::ECC_Camera, CollisionQueryParams))
 	{
 		OnHit(HitResult);
 	}
 	else
 	{
-		BeamEffect->SetVectorParameter(FName("BeamEnd"), TraceEnd);
+		if (BeamEffect->GetFXSystemAsset())
+		{
+			BeamEffect->SetVectorParameter(FName("BeamEnd"), TraceEnd);
+		}
 	}
 }
 
 void ABeamForm::OnHit(const FHitResult& Hit)
 {
-	BeamEffect->SetVectorParameter(FName("BeamEnd"), Hit.Location);
+	if (BeamEffect->GetFXSystemAsset())
+	{
+		BeamEffect->SetVectorParameter(FName("BeamEnd"), Hit.Location);
+	}
 
-	FSpellData* TempSpellData = ReadSpellDataById(SpellData->OnCollide);
+	ASpellcraftState* SpellCraftGameState = Cast<ASpellcraftState>(GetWorld()->GetGameState());
+	if (!SpellCraftGameState) {
+		return;
+	}
+	
+	FSpellData* TempSpellData = SpellCraftGameState->ReadSpellDataById(SpellData->OnCollide);
 	if (!TempSpellData)
 	{
 		return;
@@ -48,5 +71,10 @@ void ABeamForm::OnHit(const FHitResult& Hit)
 	HitActor = Hit.GetActor();
 	HitActorLocation = ImpactPoint;
 
-	StartSpellOverlapCheck(ImpactPoint);
+	UTargetAroundEffect* MagicEffect = NewObject<UTargetAroundEffect>(GetWorld());
+	MagicEffect->Id = SpellData->OnCollide;
+	MagicEffect->TargetCenter = HitActorLocation;
+	MagicEffect->HitActor = HitActor;
+
+	MagicEffect->Execute(nullptr);
 }

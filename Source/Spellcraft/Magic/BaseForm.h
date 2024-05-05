@@ -59,9 +59,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpellCraft, meta = (ExposeOnSpawn = "true"))
 	int32 Id;
 
-	FSpellData* ReadSpellDataById(int32 SpellId);
-
 	float OverlapRadius = 600.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpellCraft, meta = (ExposeOnSpawn = "true"))
+	TObjectPtr<AActor> ActorToIgnore;
 
 protected:
 	// Called when the game starts or when spawned
@@ -69,17 +70,7 @@ protected:
 
 	virtual void InitializeSpellData();
 
-	virtual void SpawnSpellByID();
-
-	virtual void StartSpellOverlapCheck(FVector& Center);
-
-	virtual void OnOverlapCompleted(const FTraceHandle& Handle, FOverlapDatum& Data);
-	
-	virtual void OnTraceCompleted(const FTraceHandle& Handle, FTraceDatum& Data);
-
-	// Actor to Ignore
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpellCraft, meta = (ExposeOnSpawn = "true"))
-	AActor* ActorToIgnore;
+	void SpellDestruction();
 
 	// Actor we hit with our spell
 	AActor* HitActor;
@@ -94,10 +85,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = SpellCraft)
 	TSubclassOf<ABeamForm> BeamClass;
-
-	FOverlapDelegate OverlapDelegate;
-
-	FTraceDelegate TraceDelegate;
 
 public:	
 	// Called every frame

@@ -33,6 +33,9 @@ public:
 	UFUNCTION(Category = Attack)
 	void AttackAnimationEnd(UAnimMontage* Montage, bool bInterrupted);
 
+	UFUNCTION(Category = Attack)
+	void AnimNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+
 private:
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -48,6 +51,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* AttackComboAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* CastMagicAnim;
 
 	class UAnimInstance* AnimInstance;
 

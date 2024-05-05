@@ -22,13 +22,16 @@ public:
 	AProjectileForm();
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	USphereComponent* SphereComponent;
+	TObjectPtr<USphereComponent> SphereComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	UProjectileMovementComponent* ProjectileMovement;
+	TObjectPtr<UStaticMeshComponent> ProjectileMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
-	UParticleSystem* ImpactEffect;
+	TObjectPtr<UParticleSystem> ImpactEffect;
 
 protected:
 	// Called when the game starts or when spawned

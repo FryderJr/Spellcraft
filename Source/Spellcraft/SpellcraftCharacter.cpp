@@ -69,6 +69,8 @@ void ASpellcraftCharacter::BeginPlay()
 
 	AnimInstance->OnMontageEnded.AddDynamic(this, &ASpellcraftCharacter::AttackAnimationEnd);
 
+	AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ASpellcraftCharacter::AnimNotifyBegin);
+
 	//AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ASpellcraftCharacter::AttackAnimationEnd);
 
 	const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("Weapon_L"));
@@ -89,27 +91,9 @@ FTransform ASpellcraftCharacter::GetWeaponRightHandGrip()
 
 void ASpellcraftCharacter::Attack()
 {
-	AnimInstance = GetMesh()->GetAnimInstance();
-
-	if (FPlatformTime::Seconds() - LastTimeCombo < 1.0) {
-		LastCombo++;
-	}
-	else
+	if (AnimInstance && CastMagicAnim)
 	{
-		LastCombo = 0;
-	}
-
-	if (LastCombo >= Combos.Num())
-	{
-		LastCombo = 0;
-	}
-
-	if (AnimInstance && AttackComboAnim)
-	{
-		AnimInstance->Montage_Play(AttackComboAnim, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f);
-		AnimInstance->Montage_Pause(AttackComboAnim);
-		AnimInstance->Montage_JumpToSection(Combos[LastCombo], AttackComboAnim);
-		AnimInstance->Montage_Resume(AttackComboAnim);
+		AnimInstance->Montage_Play(CastMagicAnim, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f);
 	}
 }
 
@@ -120,5 +104,13 @@ void ASpellcraftCharacter::AttackAnimationEnd(UAnimMontage* Montage, bool bInter
 	if (!InputEnabled())
 	{
 		EnableInput(Controller);
+	}
+}
+
+void ASpellcraftCharacter::AnimNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+	if (NotifyName == FName("CastMagic"))
+	{
+		print(FString::Printf(TEXT("Magic cast!")));
 	}
 }
