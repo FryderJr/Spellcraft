@@ -6,6 +6,12 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "ProfilingDebugging/CsvProfiler.h"
+#include "Stats/Stats.h"
+#include "Stats/Stats2.h"
+
+DECLARE_STATS_GROUP(TEXT("ProjectileGroup"), STATGROUP_Projectile, STATCAT_Advanced);
+DECLARE_CYCLE_STAT(TEXT("Projectile Stat"), STAT_ProjectileStat, STATGROUP_Projectile);
 
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::Blue,text)
 
@@ -34,6 +40,7 @@ AProjectileForm::AProjectileForm()
 
 void AProjectileForm::BeginPlay()
 {
+	QUICK_SCOPE_CYCLE_COUNTER(STAT_ProjectileBeginPlay);
 	Super::BeginPlay();
 	SphereComponent->MoveIgnoreActors.Add(ActorToIgnore);
 	SphereComponent->OnComponentHit.AddDynamic(this, &AProjectileForm::OnHit);
@@ -53,13 +60,22 @@ void AProjectileForm::BeginPlay()
 
 void AProjectileForm::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	QUICK_SCOPE_CYCLE_COUNTER(STAT_ProjectileOnHit);
 	HitActor = OtherActor;
 	HitActorLocation = Hit.Location;
 
 	//print(FString::Printf(TEXT("Projectile hit Actor is %s"), *HitActor->GetName()));
 
+	if (!SpellData.DynamicProperties.Contains(ESpellProperty::OnCollide))
+	{
+		return;
+	}
+
 	UTargetAroundEffect* MagicEffect = NewObject<UTargetAroundEffect>(GetWorld());
-	MagicEffect->Id = SpellData->OnCollide;
+
+	int32 ID = FCString::Atoi(*SpellData.DynamicProperties[ESpellProperty::OnCollide]);
+
+	MagicEffect->Id = ID;
 	MagicEffect->TargetCenter = Hit.Location;
 	MagicEffect->HitActor = OtherActor;
 
@@ -68,5 +84,5 @@ void AProjectileForm::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 			
 		}
 	);
-	SpellDestruction();
+	
 }

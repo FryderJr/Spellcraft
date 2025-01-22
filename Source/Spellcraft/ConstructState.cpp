@@ -5,13 +5,13 @@
 #include "Magic/BaseForm.h"
 #include "Magic/BeamForm.h"
 #include "Magic/ProjectileForm.h"
+#include "Weapon.h"
+#include "Magic/MagicBlueprintFunctionLibrary.h"
 
 AConstructState::AConstructState()
 {
-	/*FSpellData* InitialSpell = new FSpellData();
-	InitialSpell->bInitial = true;
-	InitialSpell->Form = EFormType::Projectile;
-	Spells.Add(InitialSpell);*/
+	SpellPropertiesByForm = UMagicBlueprintFunctionLibrary::GetPropetyByForm();
+	SpellPropertyDataType = UMagicBlueprintFunctionLibrary::GetSpellPropertyMap();
 }
 
 void AConstructState::SpawnSpell()
@@ -22,11 +22,11 @@ void AConstructState::SpawnSpell()
 		{
 			if (Spells[i].bInitial)
 			{
-				ABaseForm* SpellSpawned;
+				AActor* SpellSpawned;
 				switch (Spells[i].Form)
 				{
 				case EFormType::Projectile: SpellSpawned = GetWorld()->SpawnActor<AProjectileForm>(SpellSpawnPoint->GetActorLocation() + SpellSpawnPoint->GetActorForwardVector() * 100.0f, SpellSpawnPoint->GetActorRotation()); break;
-				case EFormType::Beam: SpellSpawned = GetWorld()->SpawnActor<ABeamForm>(SpellSpawnPoint->GetActorLocation() + SpellSpawnPoint->GetActorForwardVector() * 100.0f, SpellSpawnPoint->GetActorRotation()); break;
+				case EFormType::Beam: SpellSpawned = GetWorld()->SpawnActor<AWeapon>(SpellSpawnPoint->GetActorLocation() + SpellSpawnPoint->GetActorForwardVector() * 100.0f, SpellSpawnPoint->GetActorRotation()); SpellSpawned->SetActorHiddenInGame(true); break;
 				default:
 					break;
 				}
@@ -35,11 +35,36 @@ void AConstructState::SpawnSpell()
 	}
 }
 
-FSpellData* AConstructState::ReadSpellDataById(int32 SpellId)
+bool AConstructState::ReadSpellDataById(int32 SpellId, FSpellData& SpellData)
 {
 	if (SpellId >= Spells.Num() || SpellId < 0)
 	{
-		return nullptr;
+		return false;
 	}
-	return &Spells[SpellId];
+	SpellData = Spells[SpellId];
+	return true;
+}
+
+int32 AConstructState::AddSpellData()
+{
+	FSpellData NewSpellData;
+	NewSpellData.bInitial = false;
+	NewSpellData.Form = EFormType::Projectile;
+
+	if (Spells.IsEmpty())
+	{
+		NewSpellData.bInitial = true;
+	}
+
+	return Spells.Add(NewSpellData);
+}
+
+TArray<TEnumAsByte<ESpellProperty>> AConstructState::GetSpellPropertiesByForm(EFormType Form)
+{
+	return SpellPropertiesByForm[Form];
+}
+
+ESpellDataType AConstructState::GetDataTypeBySpellProperty(ESpellProperty SpellProperty)
+{
+	return SpellPropertyDataType[SpellProperty];
 }

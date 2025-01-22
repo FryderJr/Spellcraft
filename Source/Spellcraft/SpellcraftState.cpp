@@ -5,17 +5,24 @@
 #include "Magic/BaseForm.h"
 #include "SpellCraftGameInstance.h"
 
-FSpellData* ASpellcraftState::ReadSpellDataById(int32 SpellId)
+
+bool ASpellcraftState::ReadSpellDataById(int32 SpellId, FSpellData& SpellData)
 {
 	USpellCraftGameInstance* GameInstance = Cast<USpellCraftGameInstance>(GetGameInstance());
-	FSpellData* TempSpellData = nullptr;
-	if (GameInstance->SpellDataTable)
-	{
-		static const FString ContextString(TEXT("My Data Table Context"));
-		FString NameString = FString::FromInt(SpellId);
-		FName RowName = FName(*NameString);
 
-		TempSpellData = GameInstance->SpellDataTable->FindRow<FSpellData>(RowName, ContextString);
+	if (!GameInstance->SpellDataTable)
+		return false;
+
+	static const FString ContextString(TEXT("My Data Table Context"));
+	FString NameString = FString::FromInt(SpellId);
+	FName RowName = FName(*NameString);
+	FSpellData* SpellDataPtr = GameInstance->SpellDataTable->FindRow<FSpellData>(RowName, ContextString);
+
+	if (!SpellDataPtr)
+	{
+		return false;
 	}
-	return TempSpellData;
+
+	SpellData = *SpellDataPtr;
+	return true;
 }

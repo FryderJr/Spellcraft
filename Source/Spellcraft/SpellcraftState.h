@@ -17,5 +17,5 @@ class SPELLCRAFT_API ASpellcraftState : public AGameState
 	
 public:
 
-	virtual FSpellData* ReadSpellDataById(int32 SpellId);
+	virtual bool ReadSpellDataById(int32 SpellId, FSpellData& SpellData);
 };

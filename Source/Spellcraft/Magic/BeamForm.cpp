@@ -7,6 +7,8 @@
 #include "TargetAroundEffect.h"
 #include "Spellcraft/SpellcraftState.h"
 #include "Components/StaticMeshComponent.h"
+#include "Stats/Stats.h"
+#include "Stats/Stats2.h"
 
 ABeamForm::ABeamForm()
 {
@@ -18,6 +20,7 @@ ABeamForm::ABeamForm()
 
 void ABeamForm::BeginPlay()
 {
+	QUICK_SCOPE_CYCLE_COUNTER(STAT_BeamBeginPlay);
 	Super::BeginPlay();
 
 	FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 10000;
@@ -59,9 +62,17 @@ void ABeamForm::OnHit(const FHitResult& Hit)
 	if (!SpellCraftGameState) {
 		return;
 	}
+
+	if (!SpellData.DynamicProperties.Contains(ESpellProperty::OnCollide))
+	{
+		return;
+	}
+
+	int32 ID = FCString::Atoi(*SpellData.DynamicProperties[ESpellProperty::OnCollide]);
 	
-	FSpellData* TempSpellData = SpellCraftGameState->ReadSpellDataById(SpellData->OnCollide);
-	if (!TempSpellData)
+	FSpellData* TempSpellData = new FSpellData();
+	bool Result = SpellCraftGameState->ReadSpellDataById(ID, *TempSpellData);
+	if (!Result)
 	{
 		return;
 	}
@@ -72,7 +83,7 @@ void ABeamForm::OnHit(const FHitResult& Hit)
 	HitActorLocation = ImpactPoint;
 
 	UTargetAroundEffect* MagicEffect = NewObject<UTargetAroundEffect>(GetWorld());
-	MagicEffect->Id = SpellData->OnCollide;
+	MagicEffect->Id = ID;
 	MagicEffect->TargetCenter = HitActorLocation;
 	MagicEffect->HitActor = HitActor;
 

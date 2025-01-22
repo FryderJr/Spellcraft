@@ -30,12 +30,13 @@ void ABaseForm::BeginPlay()
 
 void ABaseForm::InitializeSpellData()
 {
+	QUICK_SCOPE_CYCLE_COUNTER(STAT_InitializeSpellData);
 	ASpellcraftState* SpellCraftGameState = Cast<ASpellcraftState>(GetWorld()->GetGameState());
 	if (!SpellCraftGameState) {
 		return;
 	}
 
-	SpellData = SpellCraftGameState->ReadSpellDataById(Id);
+	bool Result = SpellCraftGameState->ReadSpellDataById(Id, SpellData);
 }
 
 void ABaseForm::SpellDestruction()

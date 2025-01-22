@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "TargetAroundEffect.h"
 #include "BaseForm.h"
 #include "BeamForm.h"
 #include "ProjectileForm.h"
-#include "TargetAroundEffect.h"
 #include "Spellcraft/SpellcraftState.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -79,8 +78,10 @@ void UTargetAroundEffect::OnTraceCompleted(const FTraceHandle& Handle, FTraceDat
 		return;
 	}
 
-	FSpellData* TempSpellData = SpellCraftGameState->ReadSpellDataById(Id);
-	if (!TempSpellData)
+	FSpellData* TempSpellData = new FSpellData();
+	bool Result = SpellCraftGameState->ReadSpellDataById(Id, *TempSpellData);
+
+	if (!Result)
 	{
 		if (--PendingOperations == 0)
 		{
