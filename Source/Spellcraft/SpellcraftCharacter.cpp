@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimMontage.h"
+#include "Magic/ProjectileForm.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "Weapon.h"
@@ -78,6 +79,8 @@ void ASpellcraftCharacter::BeginPlay()
 	{
 		HandSocket->AttachActor(Weapon, GetMesh());
 	}
+
+	RightHandSocket = GetMesh()->GetSocketByName(FName("Weapon_R"));
 }
 
 FTransform ASpellcraftCharacter::GetWeaponRightHandGrip()
@@ -94,6 +97,7 @@ void ASpellcraftCharacter::Attack()
 	if (AnimInstance && CastMagicAnim)
 	{
 		AnimInstance->Montage_Play(CastMagicAnim, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f);
+		DisableInput(Controller);
 	}
 }
 
@@ -111,6 +115,11 @@ void ASpellcraftCharacter::AnimNotifyBegin(FName NotifyName, const FBranchingPoi
 {
 	if (NotifyName == FName("CastMagic"))
 	{
-		print(FString::Printf(TEXT("Magic cast!")));
+		FTransform SpellTransform;
+		SpellTransform.SetLocation(RightHandSocket->GetSocketLocation(GetMesh()));
+		SpellTransform.SetRotation(GetActorRotation().Quaternion());
+		AProjectileForm* Spell = GetWorld()->SpawnActorDeferred<AProjectileForm>(AProjectileForm::StaticClass(), SpellTransform);
+		Spell->Id = 0;
+		Spell->FinishSpawning(SpellTransform);
 	}
 }

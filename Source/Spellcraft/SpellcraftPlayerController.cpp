@@ -53,10 +53,10 @@ void ASpellcraftPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup touch input events
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &ASpellcraftPlayerController::OnInputStarted);
+		/*EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &ASpellcraftPlayerController::OnInputStarted);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &ASpellcraftPlayerController::OnTouchTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &ASpellcraftPlayerController::OnTouchReleased);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &ASpellcraftPlayerController::OnTouchReleased);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &ASpellcraftPlayerController::OnTouchReleased);*/
 
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASpellcraftPlayerController::OnMoveTriggered);
 		EnhancedInputComponent->BindAction(Attack, ETriggerEvent::Completed, this, &ASpellcraftPlayerController::OnAttackTriggered);
@@ -158,6 +158,8 @@ void ASpellcraftPlayerController::OnMoveTriggered(const FInputActionInstance& In
 {
 	FVector2D AxisValue = Instance.GetValue().Get<FVector2D>();
 
+	UE_LOG(LogTemplateCharacter, Warning, TEXT("Move triggered"));
+
 	if (bIsRunning)
 	{
 		AxisValue.X *= 2.0f;
@@ -180,7 +182,6 @@ void ASpellcraftPlayerController::OnAttackTriggered()
 	if (SpellCraftCharacter && SpellCraftCharacter->InputEnabled() && !SpellCraftCharacter->GetCharacterMovement()->IsFalling())
 	{
 		SpellCraftCharacter->Attack();
-		SpellCraftCharacter->DisableInput(this);
 	}
 }
 

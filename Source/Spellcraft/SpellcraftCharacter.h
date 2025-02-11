@@ -57,6 +57,8 @@ private:
 
 	class UAnimInstance* AnimInstance;
 
+	const USkeletalMeshSocket* RightHandSocket;
+
 	APlayerController* Controller;
 
 	double LastTimeCombo;
